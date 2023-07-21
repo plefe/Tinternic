@@ -9,9 +9,9 @@ train <- read.csv("train.csv")
 test <- read.csv("test.csv")
 
 full <- bind_rows(train, test)
-str(full)
-str(men)
 
+men <- full[full$Sex == "male", ]
+women <- full[full$Sex == "female", ]
 
 
 #brainstormed ideas:
@@ -45,7 +45,7 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   output$class_man <- renderHighchart({
-    men <- full[full$Sex == "male", ] %>% 
+    men %>% 
       mutate(Pclass = case_when(
         Pclass == 1 ~ "First class",
         Pclass == 2 ~ "Second class",
@@ -54,13 +54,12 @@ server <- function(input, output) {
       arrange(n) %>% 
       hchart(type = "treemap", hcaes(x = Pclass, value = n, color = n)) %>% 
       hc_title(text = "Class Distribution") %>%
-      hc_tooltip(pointFormat = "Class: {point.category}<br/>Pclass") %>% 
+      hc_tooltip(pointFormat = "Passengers: {point.value}") %>% 
       hc_add_theme(hc_theme_smpl())
   })
   
-  output$class_women <- renderHighchart({
-    women <- full[full$Sex == "female", ] %>% 
-      women %>% 
+  output$class_woman <- renderHighchart({
+    women %>% 
       mutate(Pclass = case_when(
         Pclass == 1 ~ "First class",
         Pclass == 2 ~ "Second class",
@@ -69,7 +68,7 @@ server <- function(input, output) {
       arrange(n) %>% 
       hchart(type = "treemap", hcaes(x = Pclass, value = n, color = n)) %>% 
       hc_title(text = "Class Distribution") %>%
-      hc_tooltip(pointFormat = "Class: {point.category}<br/>Pclass") %>% 
+      hc_tooltip(pointFormat = "Passengers: {point.value}") %>% 
       hc_add_theme(hc_theme_smpl())
   })
 }
