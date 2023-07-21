@@ -43,23 +43,23 @@ ui <- dashboardPage(
     )
   )
 
+server <- function(input, output) {
+  output$class_man <- renderHighchart({
+    men <- full[full$Sex == "male", ] %>% 
+      mutate(Pclass = case_when(
+        Pclass == 1 ~ "First class",
+        Pclass == 2 ~ "Second class",
+        Pclass == 3 ~ "Third class")) %>% 
+      count(Pclass) %>% 
+      arrange(n) %>% 
+      hchart(type = "treemap", hcaes(x = Pclass, value = n, color = n)) %>% 
+      hc_title(text = "Class Distribution") %>%
+      hc_tooltip(pointFormat = "Class: {point.category}<br/>Pclass") %>% 
+      hc_add_theme(hc_theme_smpl())
+  })
+}
+
+shinyApp(ui = ui, server = server)
 
 
-output$class_man <- renderHighchart({
-  men <- full[full$Sex == "male", ] %>% 
-    men %>% 
-    mutate(Pclass = case_when(
-      Pclass == 1 ~ "First class",
-      Pclass == 2 ~ "Second class",
-      Pclass == 3 ~ "Third class")) %>% 
-  count(Pclass) %>% 
-  arrange(n) %>% 
-    hchart(type = "treemap", hcaes(x = Pclass, value = n, color = n)) %>% 
-    hc_title(text = "Class Distribution") %>%
-    hc_tooltip(pointFormat = "Class: {point.category}<br/>Pclass") %>% 
-    hc_add_theme(hc_theme_smpl())
-})
-hchart(heatmap)
-
-hchart(heatmap)
 
