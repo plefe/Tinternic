@@ -36,16 +36,31 @@ ui <- dashboardPage(
               fluidRow(column(width = 6, highchartOutput('')),
                        column(width = 6, highchartOutput('')))),
       tabItem(tabName = "womens",
-              fluidRow(column(width = 6),
-                       column(width = 6)),
-              fluidRow(column(width = 6),
-                       column(width = 6))))
+              fluidRow(column(width = 6, highchartOutput('class_woman')),
+                       column(width = 6, highchartOutput(''))),
+              fluidRow(column(width = 6, highchartOutput('')),
+                       column(width = 6, highchartOutput('')))))
     )
   )
 
 server <- function(input, output) {
   output$class_man <- renderHighchart({
     men <- full[full$Sex == "male", ] %>% 
+      mutate(Pclass = case_when(
+        Pclass == 1 ~ "First class",
+        Pclass == 2 ~ "Second class",
+        Pclass == 3 ~ "Third class")) %>% 
+      count(Pclass) %>% 
+      arrange(n) %>% 
+      hchart(type = "treemap", hcaes(x = Pclass, value = n, color = n)) %>% 
+      hc_title(text = "Class Distribution") %>%
+      hc_tooltip(pointFormat = "Class: {point.category}<br/>Pclass") %>% 
+      hc_add_theme(hc_theme_smpl())
+  })
+  
+  output$class_women <- renderHighchart({
+    women <- full[full$Sex == "female", ] %>% 
+      women %>% 
       mutate(Pclass = case_when(
         Pclass == 1 ~ "First class",
         Pclass == 2 ~ "Second class",
