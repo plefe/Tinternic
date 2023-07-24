@@ -34,17 +34,18 @@ ui <- dashboardPage(
       tabItem(tabName = "mens",
               fluidRow(column(width = 6, highchartOutput('class_man')),
                        column(width = 6, highchartOutput('age_man'))),
-              fluidRow(column(width = 6, highchartOutput('')),
+              fluidRow(column(width = 6, highchartOutput('cabin_man')),
                        column(width = 6, highchartOutput('')))),
       tabItem(tabName = "womens",
               fluidRow(column(width = 6, highchartOutput('class_woman')),
                        column(width = 6, highchartOutput('age_woman'))),
-              fluidRow(column(width = 6, highchartOutput('')),
+              fluidRow(column(width = 6, highchartOutput('cabin_woman')),
                        column(width = 6, highchartOutput('')))))
     )
   )
 
 server <- function(input, output) {
+#men ####
   output$class_man <- renderHighchart({
     men %>% 
       mutate(Pclass = case_when(
@@ -71,6 +72,14 @@ server <- function(input, output) {
       hc_add_theme(hc_theme_smpl())
   })
   
+  output$cabin_man <- renderHighchart({
+    men %>% 
+      group_by(Cabin = substr(Cabin, 1, 1)) %>%
+      summarise(count = n()) %>% 
+      hchart(type="pie", hcaes(x = Cabin, y = count))
+  })
+
+#women####
   output$class_woman <- renderHighchart({
     women %>% 
       mutate(Pclass = case_when(
@@ -95,7 +104,13 @@ server <- function(input, output) {
       hc_title(text = "Age Distribution") %>%
       hc_tooltip(pointFormat = "Passengers: {point.y}") %>% 
       hc_add_theme(hc_theme_smpl())
-    
+  })
+  
+  output$cabin_woman <- renderHighchart({
+    women %>% 
+      group_by(Cabin = substr(Cabin, 1, 1)) %>%
+      summarise(count = n()) %>% 
+      hchart(type="pie", hcaes(x = Cabin, y = count))
   })
 }
 
