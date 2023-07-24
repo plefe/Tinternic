@@ -76,7 +76,10 @@ server <- function(input, output) {
     men %>% 
       group_by(Cabin = substr(Cabin, 1, 1)) %>%
       summarise(count = n()) %>% 
-      hchart(type="pie", hcaes(x = Cabin, y = count))
+      hchart(type="pie", hcaes(x = Cabin, y = count)) %>% 
+      hc_title(text = "Cabin Distribution") %>%
+      hc_tooltip(pointFormat = "Passengers: {point.y}") %>% 
+      hc_add_theme(hc_theme_smpl())
   })
 
 #women####
@@ -110,7 +113,10 @@ server <- function(input, output) {
     women %>% 
       group_by(Cabin = substr(Cabin, 1, 1)) %>%
       summarise(count = n()) %>% 
-      hchart(type="pie", hcaes(x = Cabin, y = count))
+      hchart(type="pie", hcaes(x = Cabin, y = count)) %>% 
+      hc_title(text = "Cabin Distribution") %>%
+      hc_tooltip(pointFormat = "Passengers: {point.y}") %>% 
+      hc_add_theme(hc_theme_smpl())
   })
 }
 
