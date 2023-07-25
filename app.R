@@ -25,6 +25,45 @@ women <- full[full$Sex == "female", ]%>%
 model <- lm(data= train, Survived ~ Sex+Age)
 summary(model)
 
+
+logistic_model <- lm(Survived ~ Sex + Pclass + Age + Embarked + Fare + Cabin + SibSp + Parch, data = train)#, family = binomial)
+summary(logistic_model)
+
+male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
+
+specific_person <- data.frame(Sex = "male", Pclass = 3, Age = 30, Name = "Behr, Mr. Karl Howell")
+
+
+#employees
+Rylans_Mom <- data.frame(PassengerId = 665, Sex = "female", Pclass = 2, Age = 50, SibSp = 1,
+                         Parch = 1, Fare = 12.98, Cabin = "B4", Embarked = "S")
+Jon_Dunham <- data.frame(PassengerId = 666, Sex = "male", Pclass = 2, Age = 27, SibSp = 1,
+                         Parch = 0, Fare = 12.98, Cabin = "B4", Embarked = "S")
+Parker_LeFebvre <- data.frame(PassengerId = 664, Sex = "male", Pclass = 1, Age = 22, SibSp = 2,
+                              Parch = 2, Fare = 248.4, Cabin = "A10", Embarked = "S")
+Rylan_Murry <- data.frame(PassengerId = 663, Sex = "male", Pclass = 1, Age = 28, SibSp = -1,
+                              Parch = -1, Fare = 1000000000, Cabin = "B4", Embarked = "S")
+Luke_Wagoner <- data.frame(PassengerId = 662, Sex = "male", Pclass = 3, Age = 33, SibSp = 3,
+                          Parch = 1, Fare = 10.77, Cabin = "D19", Embarked = "Q")
+Parkers_Mom <- data.frame(PassengerId = 661, Sex = "female", Pclass = 1, Age = 55, SibSp = 0,
+                          Parch = 3, Fare = 250, Cabin = "A16", Embarked = "S")
+
+Rylans_mom_prob <- predict(logistic_model, newdata = Rylans_Mom, type = "response")
+print(Rylans_mom_prob)
+Jons_prob <- predict(logistic_model, newdata = Jon_Dunham, type = "response")
+print(Jons_prob)
+Parkers_prob <- predict(logistic_model, newdata = Parker_LeFebvre, type = "response")
+print(Parkers_prob)
+Rylans_prob <- predict(logistic_model, newdata = Rylan_Murry, type = "response")
+print(Rylans_prob)
+Lukes_prob <- predict(logistic_model, newdata = Luke_Wagoner, type = "response")
+print(Lukes_prob)
+Parkers_mom_prob <- predict(logistic_model, newdata = Parkers_Mom, type = "response")
+print(Parkers_mom_prob)
+
+
+
+
 filterable <- reactive ({
   full %>% 
     filter(Survived == input$Survived)
