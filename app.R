@@ -4,8 +4,8 @@ library(highcharter)
 library(shiny)
 library(shinyWidgets)
 library(shinydashboard)
-library(ranger)
-library(h2o)
+library(randomForest)
+library(ISLR)
 
 train <- read.csv("train.csv")
 test <- read.csv("test.csv")
@@ -17,6 +17,20 @@ men <- full[full$Sex == "male", ] %>%
 
 women <- full[full$Sex == "female", ]%>% 
   mutate(Age = ifelse(Age <1, 0, Age))
+# 
+# set.seed(69420)
+# lost_woods <- randomForest(Survived ~ Sex, Embarked, Age, data = train, ntree = 50)
+# plot(lost_woods)
+
+model <- lm(data= train, Survived ~ Sex+Age)
+summary(model)
+
+filterable_male <- reactive ({
+  full %>% 
+    filter(Survived == input$Survived)
+}) 
+  
+
 
 #brainstormed ideas:
 # I want two tabs, male and female. Main filter being whether they survived or not
@@ -29,7 +43,8 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Men Analysis", tabName = "mens", icon = icon("person")),
-      menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress"))
+      menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress")),
+      selectInput("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])
     )
   ),
   dashboardBody(
