@@ -4,6 +4,8 @@ library(highcharter)
 library(shiny)
 library(shinyWidgets)
 library(shinydashboard)
+library(ranger)
+library(h2o)
 
 train <- read.csv("train.csv")
 test <- read.csv("test.csv")
@@ -13,7 +15,8 @@ full <- bind_rows(train, test)
 men <- full[full$Sex == "male", ] %>% 
   mutate(Age = ifelse(Age <1, 0, Age))
 
-women <- full[full$Sex == "female", ]
+women <- full[full$Sex == "female", ]%>% 
+  mutate(Age = ifelse(Age <1, 0, Age))
 
 #brainstormed ideas:
 # I want two tabs, male and female. Main filter being whether they survived or not
