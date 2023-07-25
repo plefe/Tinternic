@@ -25,7 +25,7 @@ women <- full[full$Sex == "female", ]%>%
 model <- lm(data= train, Survived ~ Sex+Age)
 summary(model)
 
-filterable_male <- reactive ({
+filterable <- reactive ({
   full %>% 
     filter(Survived == input$Survived)
 }) 
@@ -44,7 +44,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Men Analysis", tabName = "mens", icon = icon("person")),
       menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress")),
-      selectInput("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])
+      radioButtons("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])
     )
   ),
   dashboardBody(
@@ -63,9 +63,17 @@ ui <- dashboardPage(
   )
 
 server <- function(input, output) {
+  
+  filterable <- reactive ({
+    full %>% 
+      filter(Survived == input$Survived)
+  }) 
+  
 #men ####
   output$class_man <- renderHighchart({
-    men %>% 
+    filterable() %>% 
+      filter(Sex == 'male')%>%
+      mutate(Age = ifelse(Age <1, 0, Age)) %>% 
       mutate(Pclass = case_when(
         Pclass == 1 ~ "First class",
         Pclass == 2 ~ "Second class",
@@ -79,7 +87,9 @@ server <- function(input, output) {
   })
   
   output$age_man <- renderHighchart({
-    men_age_buckets <- cut(men$Age, breaks = seq(0, max(men$Age, na.rm = TRUE) + 1, by = 5))
+    temp <-  filterable() %>% 
+       filter(Sex == 'male')
+    men_age_buckets <- cut(temp$Age, breaks = seq(0, max(temp$Age, na.rm = TRUE) + 1, by = 5))
     men_age_counts <- table(men_age_buckets)
     men_age_levels <- levels(men_age_buckets)
     men_age <- data.frame(Age = men_age_levels, People = men_age_counts)
@@ -91,7 +101,8 @@ server <- function(input, output) {
   })
   
   output$cabin_man <- renderHighchart({
-    men %>% 
+    filterable() %>% 
+      filter(Sex == 'male')%>%
       group_by(Cabin = substr(Cabin, 1, 1)) %>%
       summarise(count = n()) %>% 
       hchart(type="pie", hcaes(x = Cabin, y = count)) %>% 
@@ -102,7 +113,8 @@ server <- function(input, output) {
 
 #women####
   output$class_woman <- renderHighchart({
-    women %>% 
+    filterable() %>% 
+      filter(Sex == 'female')%>% 
       mutate(Pclass = case_when(
         Pclass == 1 ~ "First class",
         Pclass == 2 ~ "Second class",
@@ -116,7 +128,9 @@ server <- function(input, output) {
   })
   
   output$age_woman <- renderHighchart({
-    women_age_buckets <- cut(women$Age, breaks = seq(0, max(women$Age, na.rm = TRUE) + 1, by = 5))
+    temp <-  filterable() %>% 
+      filter(Sex == 'female')
+    women_age_buckets <- cut(temp$Age, breaks = seq(0, max(temp$Age, na.rm = TRUE) + 1, by = 5))
     women_age_counts <- table(women_age_buckets)
     women_age_levels <- levels(women_age_buckets)
     women_age <- data.frame(Age = women_age_levels, People = women_age_counts)
@@ -128,7 +142,8 @@ server <- function(input, output) {
   })
   
   output$cabin_woman <- renderHighchart({
-    women %>% 
+    filterable() %>% 
+      filter(Sex == 'female')%>% 
       group_by(Cabin = substr(Cabin, 1, 1)) %>%
       summarise(count = n()) %>% 
       hchart(type="pie", hcaes(x = Cabin, y = count)) %>% 
