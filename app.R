@@ -22,45 +22,49 @@ women <- full[full$Sex == "female", ]%>%
 # lost_woods <- randomForest(Survived ~ Sex, Embarked, Age, data = train, ntree = 50)
 # plot(lost_woods)
 
-model <- lm(data= train, Survived ~ Sex+Age)
-summary(model)
+# model <- lm(data= train, Survived ~ Sex+Age)
+# summary(model)
+# 
+# 
+# logistic_model <- lm(Survived ~ Sex + Pclass + Age + Embarked + Fare + Cabin + SibSp + Parch, data = train)#, family = binomial)
+# summary(logistic_model)
+# 
+# male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
+# 
+# specific_person <- data.frame(Sex = "male", Pclass = 3, Age = 30, Name = "Behr, Mr. Karl Howell")
+# 
+# 
+# #employees
+# Rylans_Mom <- data.frame(PassengerId = 665, Sex = "female", Pclass = 2, Age = 50, SibSp = 1,
+#                          Parch = 1, Fare = 12.98, Cabin = "B4", Embarked = "S")
+# Jon_Dunham <- data.frame(PassengerId = 666, Sex = "male", Pclass = 2, Age = 27, SibSp = 1,
+#                          Parch = 0, Fare = 12.98, Cabin = "B4", Embarked = "S")
+# Parker_LeFebvre <- data.frame(PassengerId = 664, Sex = "male", Pclass = 1, Age = 22, SibSp = 2,
+#                               Parch = 2, Fare = 248.4, Cabin = "A10", Embarked = "S")
+# Rylan_Murry <- data.frame(PassengerId = 663, Sex = "male", Pclass = 1, Age = 28, SibSp = -1,
+#                               Parch = -1, Fare = 1000000000, Cabin = "B4", Embarked = "S")
+# Luke_Wagoner <- data.frame(PassengerId = 662, Sex = "male", Pclass = 3, Age = 33, SibSp = 3,
+#                           Parch = 1, Fare = 10.77, Cabin = "D19", Embarked = "Q")
+# Parkers_Mom <- data.frame(PassengerId = 661, Sex = "female", Pclass = 1, Age = 55, SibSp = 0,
+#                           Parch = 3, Fare = 250, Cabin = "A16", Embarked = "S")
+# 
+# Rylans_mom_prob <- predict(logistic_model, newdata = Rylans_Mom, type = "response")
+# print(Rylans_mom_prob)
+# Jons_prob <- predict(logistic_model, newdata = Jon_Dunham, type = "response")
+# print(Jons_prob)
+# Parkers_prob <- predict(logistic_model, newdata = Parker_LeFebvre, type = "response")
+# print(Parkers_prob)
+# Rylans_prob <- predict(logistic_model, newdata = Rylan_Murry, type = "response")
+# print(Rylans_prob)
+# Lukes_prob <- predict(logistic_model, newdata = Luke_Wagoner, type = "response")
+# print(Lukes_prob)
+# Parkers_mom_prob <- predict(logistic_model, newdata = Parkers_Mom, type = "response")
+# print(Parkers_mom_prob)
 
-
-logistic_model <- lm(Survived ~ Sex + Pclass + Age + Embarked + Fare + Cabin + SibSp + Parch, data = train)#, family = binomial)
-summary(logistic_model)
-
-male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
-
-specific_person <- data.frame(Sex = "male", Pclass = 3, Age = 30, Name = "Behr, Mr. Karl Howell")
-
-
-#employees
-Rylans_Mom <- data.frame(PassengerId = 665, Sex = "female", Pclass = 2, Age = 50, SibSp = 1,
-                         Parch = 1, Fare = 12.98, Cabin = "B4", Embarked = "S")
-Jon_Dunham <- data.frame(PassengerId = 666, Sex = "male", Pclass = 2, Age = 27, SibSp = 1,
-                         Parch = 0, Fare = 12.98, Cabin = "B4", Embarked = "S")
-Parker_LeFebvre <- data.frame(PassengerId = 664, Sex = "male", Pclass = 1, Age = 22, SibSp = 2,
-                              Parch = 2, Fare = 248.4, Cabin = "A10", Embarked = "S")
-Rylan_Murry <- data.frame(PassengerId = 663, Sex = "male", Pclass = 1, Age = 28, SibSp = -1,
-                              Parch = -1, Fare = 1000000000, Cabin = "B4", Embarked = "S")
-Luke_Wagoner <- data.frame(PassengerId = 662, Sex = "male", Pclass = 3, Age = 33, SibSp = 3,
-                          Parch = 1, Fare = 10.77, Cabin = "D19", Embarked = "Q")
-Parkers_Mom <- data.frame(PassengerId = 661, Sex = "female", Pclass = 1, Age = 55, SibSp = 0,
-                          Parch = 3, Fare = 250, Cabin = "A16", Embarked = "S")
-
-Rylans_mom_prob <- predict(logistic_model, newdata = Rylans_Mom, type = "response")
-print(Rylans_mom_prob)
-Jons_prob <- predict(logistic_model, newdata = Jon_Dunham, type = "response")
-print(Jons_prob)
-Parkers_prob <- predict(logistic_model, newdata = Parker_LeFebvre, type = "response")
-print(Parkers_prob)
-Rylans_prob <- predict(logistic_model, newdata = Rylan_Murry, type = "response")
-print(Rylans_prob)
-Lukes_prob <- predict(logistic_model, newdata = Luke_Wagoner, type = "response")
-print(Lukes_prob)
-Parkers_mom_prob <- predict(logistic_model, newdata = Parkers_Mom, type = "response")
-print(Parkers_mom_prob)
-
+generate_outcomes <- function(prob_survival, num_outcomes) {
+  outcomes <- sample(c("SURVIVED", "NOT SURVIVED"), size = num_outcomes, prob = c(prob_survival, 1 - prob_survival), replace = TRUE)
+  return(outcomes)
+}
 
 
 
@@ -83,6 +87,7 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Men Analysis", tabName = "mens", icon = icon("person")),
       menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress")),
+      menuItem("Employee Analysis", tabName = "probs", icon = icon("person-dress")),
       radioButtons("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])
     )
   ),
@@ -97,9 +102,17 @@ ui <- dashboardPage(
               fluidRow(column(width = 6, highchartOutput('class_woman')),
                        column(width = 6, highchartOutput('age_woman'))),
               fluidRow(column(width = 6, highchartOutput('cabin_woman')),
-                       column(width = 6, highchartOutput('')))))
-    )
-  )
+                       column(width = 6, highchartOutput('')))),
+      tabItem(tabName = "probs",
+              fluidRow(column(width = 4, infoBox(title = "Info Box 1", round(Parkers_prob, 4))),
+                       column(width = 4, actionButton("btn_survival_60", "60% Chance of Survival")),
+                       column(width = 4)),
+                        
+              fluidRow(column(width = 6, infoBox(title = "Info Box 2", "This is the information for box 2.")),
+                       column(width = 6, actionButton("btn_survival_30", "30% Chance of Survival"))),
+              fluidRow(column(width = 6, infoBox(title = "Info Box 3", "This is the information for box 3.")),
+                       column(width = 6, actionButton("btn_survival_10", "10% Chance of Survival"))),
+              fluidRow(column(width = 12, textOutput("result_text")))))))
 
 server <- function(input, output) {
   
@@ -190,6 +203,79 @@ server <- function(input, output) {
       hc_tooltip(pointFormat = "Passengers: {point.y}") %>% 
       hc_add_theme(hc_theme_smpl())
   })
+  
+  num_outcomes <- 1000
+  
+  # Generate random outcomes for each button's probability
+  outcomes_60 <- generate_outcomes(prob_survival = 0.6, num_outcomes)
+  outcomes_30 <- generate_outcomes(prob_survival = 0.3, num_outcomes)
+  outcomes_10 <- generate_outcomes(prob_survival = 0.1, num_outcomes)
+  
+  # Reactive value to store the index of the last clicked button
+  last_clicked <- reactiveVal(NULL)
+  
+  observeEvent(input$btn_survival_60, {
+    last_clicked("btn_survival_60")
+  })
+  
+  observeEvent(input$btn_survival_30, {
+    last_clicked("btn_survival_30")
+  })
+  
+  observeEvent(input$btn_survival_10, {
+    last_clicked("btn_survival_10")
+  })
+  
+  # Reactive value to trigger output update after each button click
+  update_output <- reactive({
+    input$btn_survival_60
+    input$btn_survival_30
+    input$btn_survival_10
+  })
+  
+  output$result_text <- renderText({
+    req(last_clicked())  # Making sure a button is clicked before displaying the result
+    
+    outcome <- switch(
+      last_clicked(),
+      "btn_survival_60" = outcomes_60[1],
+      "btn_survival_30" = outcomes_30[1],
+      "btn_survival_10" = outcomes_10[1]
+    )
+    
+    # Removing outcome from the list for next button clicks
+    switch(
+      last_clicked(),
+      "btn_survival_60" = outcomes_60 <<- outcomes_60[-1],
+      "btn_survival_30" = outcomes_30 <<- outcomes_30[-1],
+      "btn_survival_10" = outcomes_10 <<- outcomes_10[-1]
+    )
+    
+    paste("Randomly chosen outcome:", outcome)
+  })
+  
+  observeEvent(update_output(), {
+    output$result_text <- renderText({
+      outcome <- switch(
+        last_clicked(),
+        "btn_survival_60" = outcomes_60[1],
+        "btn_survival_30" = outcomes_30[1],
+        "btn_survival_10" = outcomes_10[1]
+      )
+      
+      # Remove the used outcome from the list for next button clicks
+      switch(
+        last_clicked(),
+        "btn_survival_60" = outcomes_60 <<- outcomes_60[-1],
+        "btn_survival_30" = outcomes_30 <<- outcomes_30[-1],
+        "btn_survival_10" = outcomes_10 <<- outcomes_10[-1]
+      )
+      
+      paste("Randomly chosen outcome:", outcome)
+    })
+  })
+  
+  
 }
 
 shinyApp(ui = ui, server = server)
