@@ -27,7 +27,7 @@ women <- full[full$Sex == "female", ] %>%
 # summary(model)
 # 
 # 
- logistic_model <- lm(Survived ~ Sex + Pclass + Age + Embarked + Fare + Cabin + SibSp + Parch, data = full)#, family = binomial)
+ logistic_model <- glm(Survived ~ Sex + Pclass + Age + Embarked + Fare + SibSp + Parch, data = train)#, family = binomial)
 # summary(logistic_model)
 # 
 # male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
@@ -36,23 +36,23 @@ women <- full[full$Sex == "female", ] %>%
 # 
 # employees ####
 Rylans_Mom <- data.frame(PassengerId = 665, Sex = "female", Pclass = 2, Age = 50, SibSp = 1,
-                         Parch = 1, Fare = 12.98, Cabin = "B4", Embarked = "S")
+                         Parch = 1, Fare = 12.98, Cabin = "", Embarked = "S")
 Jon_Dunham <- data.frame(PassengerId = 666, Sex = "male", Pclass = 2, Age = 27, SibSp = 1,
-                         Parch = 0, Fare = 12.98, Cabin = "B4", Embarked = "S")
+                         Parch = 0, Fare = 12.98, Cabin = "", Embarked = "S")
 Parker_LeFebvre <- data.frame(PassengerId = 664, Sex = "male", Pclass = 1, Age = 22, SibSp = 2,
-                              Parch = 2, Fare = 248.4, Cabin = "A10", Embarked = "S")
+                              Parch = 2, Fare = 248.4, Cabin = "", Embarked = "S")
 Rylan_Murry <- data.frame(PassengerId = 663, Sex = "male", Pclass = 1, Age = 28, SibSp = -1,
-                              Parch = -1, Fare = 1000000000, Cabin = "B4", Embarked = "S")
+                              Parch = -1, Fare = 1000000000, Cabin = "", Embarked = "S")
 Luke_Wagoner <- data.frame(PassengerId = 662, Sex = "male", Pclass = 3, Age = 33, SibSp = 3,
-                          Parch = 1, Fare = 10.77, Cabin = "D19", Embarked = "Q")
+                          Parch = 1, Fare = 10.77, Cabin = "", Embarked = "Q")
 Parkers_Mom <- data.frame(PassengerId = 661, Sex = "female", Pclass = 1, Age = 55, SibSp = 0,
-                          Parch = 3, Fare = 250, Cabin = "A16", Embarked = "S")
+                          Parch = 3, Fare = 250, Cabin = "", Embarked = "S")
 Ophelia_Banks <- data.frame(PassengerId = 660, Sex = "female", Pclass = 1, Age = 73, SibSp = 0,
-                            Parch = 0, Fare = 42.07, Cabin = "A10", Embarked = "C")
+                            Parch = 0, Fare = 42.07, Cabin = "", Embarked = "C")
 Rose_Bukater <- data.frame(PassengerId = 659, Sex = "female", Pclass = 1, Age = 31, SibSp = 0,
                            Parch = 2, Fare = 98.9, Cabin = "", Embarked = "C")
 Jack_Dawson <- data.frame(PassengerId = 658, Sex = "male", Pclass = 3, Age = 27, SibSp = 0,
-                          Parch = 2, Fare = 0, Cabin = "E10", Embarked = "S")
+                          Parch = 2, Fare = 0, Cabin = "", Embarked = "S")
 
 #probs####
 Rylans_mom_prob <- predict(logistic_model, newdata = Rylans_Mom, type = "response")
@@ -130,6 +130,9 @@ ui <- dashboardPage(
               fluidRow(column(width = 4, box(title = "Rylan", paste0(round(Rylans_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Rylan", "Rylan's Chance of Survival")),
                        column(width = 4, textOutput("result_Rylan"))),
+              fluidRow(column(width = 4, box(title = "Jon", paste0(round(Jons_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Jon", "Jon's Chance of Survival")),
+                       column(width = 4, textOutput("result_Jon"))),
               fluidRow(column(width = 4, box(title = "Luke", paste0(round(Lukes_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Luke", "Luke's Chance of Survival")),
                        column(width = 4, textOutput("result_Luke"))),
@@ -139,9 +142,12 @@ ui <- dashboardPage(
               fluidRow(column(width = 4, box(title = "Ophelia", paste0(round(Ophelias_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Ophelia", "Ophelia's Chance of Survival")),
                        column(width = 4, textOutput("result_Ophelia"))),
-              fluidRow(column(width = 4, box(title = "Jon", paste0(round(Jons_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Jon", "Jon's Chance of Survival")),
-                       column(width = 4, textOutput("result_Jon")))))))
+              fluidRow(column(width = 4, box(title = "Rose", paste0(round(Roses_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Rose", "Rose's Chance of Survival")),
+                       column(width = 4, textOutput("result_Rose"))),
+              fluidRow(column(width = 4, box(title = "Jack", paste0(round(Jacks_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Jack", "Jack's Chance of Survival")),
+                       column(width = 4, textOutput("result_Jack")))))))
 
 
 server <- function(input, output) {
@@ -241,9 +247,11 @@ server <- function(input, output) {
   outcomes_Rylans_Mom <- generate_outcomes(prob_survival = 0.6543, num_outcomes)
   outcomes_Jon <- generate_outcomes(prob_survival = 0.335, num_outcomes)
   outcomes_Rylan <- generate_outcomes(prob_survival = 1, num_outcomes)
-  outcomes_Luke <- generate_outcomes(prob_survival = 0.561, num_outcomes)
+  outcomes_Luke <- generate_outcomes(prob_survival = 0.116, num_outcomes)
   outcomes_Parkers_mom <- generate_outcomes(prob_survival = 1, num_outcomes)
   outcomes_Ophelia <- generate_outcomes(prob_survival = 0.226, num_outcomes)
+  outcomes_Rose <- generate_outcomes(prob_survival = 1, num_outcomes)
+  outcomes_Jack <- generate_outcomes(prob_survival = 0.094, num_outcomes)
   
 
   clicked_parker <- reactiveVal(NULL)
@@ -253,6 +261,8 @@ server <- function(input, output) {
   clicked_Luke <- reactiveVal(NULL)
   clicked_Parkers_mom <- reactiveVal(NULL)
   clicked_Ophelia <- reactiveVal(NULL)
+  clicked_Rose <- reactiveVal(NULL)
+  clicked_Jack <- reactiveVal(NULL)
   
   observeEvent(input$btn_parker, {
     clicked_parker("btn_parker")
@@ -280,6 +290,14 @@ server <- function(input, output) {
   
   observeEvent(input$btn_Ophelia, {
     clicked_Ophelia("btn_Ophelia")
+  })
+  
+  observeEvent(input$btn_Rose, {
+    clicked_Rose("btn_Rose")
+  })
+  
+  observeEvent(input$btn_Jack, {
+    clicked_Jack("btn_Jack")
   })
   
   output$result_parker <- renderText({
@@ -350,6 +368,26 @@ server <- function(input, output) {
     )
     outcomes_Ophelia <<- outcomes_Ophelia[-1]
     paste("Ophelia", outcome)
+  })
+  
+  output$result_Rose <- renderText({
+    req(clicked_Rose())
+    outcome <- switch(
+      clicked_Rose(),
+      "btn_Rose" = outcomes_Rose[1]
+    )
+    outcomes_Rose <<- outcomes_Rose[-1]
+    paste("Rose", outcome)
+  })
+  
+  output$result_Jack <- renderText({
+    req(clicked_Jack())
+    outcome <- switch(
+      clicked_Jack(),
+      "btn_Jack" = outcomes_Jack[1]
+    )
+    outcomes_Jack <<- outcomes_Jack[-1]
+    paste("Jack", outcome)
   })
   
   
