@@ -27,7 +27,7 @@ women <- full[full$Sex == "female", ] %>%
 # summary(model)
 # 
 # 
-# logistic_model <- lm(Survived ~ Sex + Pclass + Age + Embarked + Fare + Cabin + SibSp + Parch, data = train)#, family = binomial)
+ logistic_model <- lm(Survived ~ Sex + Pclass + Age + Embarked + Fare + Cabin + SibSp + Parch, data = full)#, family = binomial)
 # summary(logistic_model)
 # 
 # male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
@@ -127,10 +127,13 @@ ui <- dashboardPage(
               fluidRow(column(width = 4, box(title = "Rylan's Mom", paste0(round(Rylans_mom_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Rylans_Mom", "Rylan's Mom's Chance of Survival")),
                        column(width = 4, textOutput("result_Rylans_Mom"))),
+              fluidRow(column(width = 4, box(title = "Rylan", paste0(round(Rylans_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Rylan", "Rylan's Chance of Survival")),
+                       column(width = 4, textOutput("result_Rylan"))),
               fluidRow(column(width = 4, box(title = "Jon", paste0(round(Jons_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Jon", "Jon's Chance of Survival")),
                        column(width = 4, textOutput("result_Jon")))))))
-        #      fluidRow(column(width = 12, textOutput("result")))))))
+
 
 server <- function(input, output) {
   
@@ -222,15 +225,19 @@ server <- function(input, output) {
       hc_add_theme(hc_theme_smpl())
   })
   
+  #Who survived tab####
+  
   num_outcomes <- 1000
   outcomes_parker <- generate_outcomes(prob_survival = 0.039, num_outcomes)
   outcomes_Rylans_Mom <- generate_outcomes(prob_survival = 0.6543, num_outcomes)
   outcomes_Jon <- generate_outcomes(prob_survival = 0.335, num_outcomes)
+  outcomes_Rylan <- generate_outcomes(prob_survival = 1, num_outcomes)
   
 
   clicked_parker <- reactiveVal(NULL)
   clicked_Rylans_Mom <- reactiveVal(NULL)
   clicked_Jon <- reactiveVal(NULL)
+  clicked_Rylan <- reactiveVal(NULL)
   
   observeEvent(input$btn_parker, {
     clicked_parker("btn_parker")
@@ -242,6 +249,10 @@ server <- function(input, output) {
   
   observeEvent(input$btn_Jon, {
     clicked_Jon("btn_Jon")
+  })
+  
+  observeEvent(input$btn_Rylan, {
+    clicked_Rylan("btn_Rylan")
   })
   
   output$result_parker <- renderText({
@@ -272,6 +283,16 @@ server <- function(input, output) {
     )
     outcomes_Jon <<- outcomes_Jon[-1]
     paste("Jon", outcome)
+  })
+  
+  output$result_Rylan <- renderText({
+    req(clicked_Rylan())
+    outcome <- switch(
+      clicked_Rylan(),
+      "btn_Rylan" = outcomes_Rylan[1]
+    )
+    outcomes_Rylan <<- outcomes_Rylan[-1]
+    paste("Rylan", outcome)
   })
   
   
