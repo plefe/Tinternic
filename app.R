@@ -18,22 +18,9 @@ men <- full[full$Sex == "male", ] %>%
 
 women <- full[full$Sex == "female", ] %>% 
   mutate(Age = ifelse(Age <1, 0, Age))
-# 
-# set.seed(69420)
-# lost_woods <- randomForest(Survived ~ Sex, Embarked, Age, data = train, ntree = 50)
-# plot(lost_woods)
 
-# model <- lm(data= train, Survived ~ Sex+Age)
-# summary(model)
-# 
-# 
  logistic_model <- glm(Survived ~ Sex + Pclass + Age + Embarked + Fare + SibSp + Parch, data = train)#, family = binomial)
-# summary(logistic_model)
-# 
-# male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
-# 
-# 
-# 
+
 # employees ####
 Rylans_Mom <- data.frame(PassengerId = 665, Sex = "female", Pclass = 2, Age = 50, SibSp = 1,
                          Parch = 1, Fare = 12.98, Cabin = "", Embarked = "S")
@@ -63,7 +50,7 @@ Parkers_prob <- predict(logistic_model, newdata = Parker_LeFebvre, type = "respo
 print(Parkers_prob)
 Rylans_prob <- predict(logistic_model, newdata = Rylan_Murry, type = "response")
 print(Rylans_prob)
-Lukes_prob <- predict(logistic_model, newdata = Luke_Wagoner, type = "response")
+Lukes_prob <- abs(predict(logistic_model, newdata = Luke_Wagoner, type = "response"))
 print(Lukes_prob)
 Parkers_mom_prob <- predict(logistic_model, newdata = Parkers_Mom, type = "response")
 print(Parkers_mom_prob)
@@ -71,31 +58,21 @@ Ophelias_prob <- predict(logistic_model, newdata = Ophelia_Banks, type = "respon
 print(Ophelias_prob)
 Roses_prob <- predict(logistic_model, newdata = Rose_Bukater, type = "response")
 print(Roses_prob)
-
 Jacks_prob <- predict(logistic_model, newdata = Jack_Dawson, type = "response")
 print(Jacks_prob)
 
 
 
 generate_outcomes <- function(prob_survival, num_outcomes) {
-  outcomes <- sample(c("SURVIVED", "DID NOT SURVIVE"), size = num_outcomes, prob = c(prob_survival, 1 - prob_survival), replace = TRUE)
+  outcomes <- sample(c("SURVIVED", "DIED"), size = num_outcomes, prob = c(prob_survival, 1 - prob_survival), replace = TRUE)
   return(outcomes)
 }
 
-
-
-filterable <- reactive ({
-  full %>% 
-    filter(Survived == input$Survived)
-}) 
+# filterable <- reactive ({
+#   full %>% 
+#     filter(Survived == input$Survived)
+# }) 
   
-
-
-#brainstormed ideas:
-# I want two tabs, male and female. Main filter being whether they survived or not
-# Male tab: 4 charts. class, age, cabin, embarked
-# Female tab: 4 charts. class, age, cabin, embarked
-# tab 3: ML tab covering what had the greatest impact on survival/class/fare/age
 
 ui <- dashboardPage(
   dashboardHeader(title = "Tinternic"),
@@ -103,10 +80,10 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Men Analysis", tabName = "mens", icon = icon("person")),
       menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress")),
-      radioButtons("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])),
+      radioButtons("Survived", "Drowned Filter:", choiceNames = c('All Passengers', 'Died', 'Survived'), choiceValues = c(2,0,1)),
       menuItem("Did you Survive?", tabName = "probs", icon = icon("person-drowning")
     )
-  ),
+  )),
   dashboardBody(
     tabItems(
       tabItem(tabName = "mens",
@@ -122,39 +99,49 @@ ui <- dashboardPage(
       tabItem(tabName = "probs",
               fluidRow(title = "Parker",
                        column(width = 4, box(title = "Parker", paste0(round(Parkers_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_parker", "Parker's Chance of Survival")),
+                       column(width = 4, actionButton("btn_parker", "Click for Parker's Chance of Survival")),
                        column(width = 4, textOutput("result_parker"))),
               fluidRow(column(width = 4, box(title = "Rylan's Mom", paste0(round(Rylans_mom_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Rylans_Mom", "Rylan's Mom's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Rylans_Mom", "Click for Rylan's Mom's Chance of Survival")),
                        column(width = 4, textOutput("result_Rylans_Mom"))),
               fluidRow(column(width = 4, box(title = "Rylan", paste0(round(Rylans_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Rylan", "Rylan's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Rylan", "Click for Rylan's Chance of Survival")),
                        column(width = 4, textOutput("result_Rylan"))),
               fluidRow(column(width = 4, box(title = "Jon", paste0(round(Jons_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Jon", "Jon's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Jon", "Click for Jon's Chance of Survival")),
                        column(width = 4, textOutput("result_Jon"))),
               fluidRow(column(width = 4, box(title = "Luke", paste0(round(Lukes_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Luke", "Luke's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Luke", "Click for Luke's Chance of Survival")),
                        column(width = 4, textOutput("result_Luke"))),
               fluidRow(column(width = 4, box(title = "Parker's Mom", paste0(round(Parkers_mom_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Parkers_mom", "Luke's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Parkers_mom", "Click for Parker's Mom's Chance of Survival")),
                        column(width = 4, textOutput("result_Parkers_mom"))),
               fluidRow(column(width = 4, box(title = "Ophelia", paste0(round(Ophelias_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Ophelia", "Ophelia's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Ophelia", "Click for Ophelia's Chance of Survival")),
                        column(width = 4, textOutput("result_Ophelia"))),
               fluidRow(column(width = 4, box(title = "Rose", paste0(round(Roses_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Rose", "Rose's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Rose", "Click for Rose's Chance of Survival")),
                        column(width = 4, textOutput("result_Rose"))),
               fluidRow(column(width = 4, box(title = "Jack", paste0(round(Jacks_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_Jack", "Jack's Chance of Survival")),
+                       column(width = 4, actionButton("btn_Jack", "Click for Jack's Chance of Survival")),
                        column(width = 4, textOutput("result_Jack")))))))
 
 
 server <- function(input, output) {
   
   filterable <- reactive ({
-    full %>% 
-      filter(Survived == input$Survived)
+    if(input$Survived == 2){
+      
+      full %>%
+        filter(!is.na(Survived))
+      
+    } else if(input$Survived != 2){
+      
+      full %>% 
+        filter(Survived == input$Survived) 
+      
+    }
+      
   }) 
   
 #men ####
