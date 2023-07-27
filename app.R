@@ -19,6 +19,19 @@ men <- full[full$Sex == "male", ] %>%
 women <- full[full$Sex == "female", ] %>% 
   mutate(Age = ifelse(Age <1, 0, Age))
 
+men_survived <- men %>% 
+  filter(Survived == 1) %>% 
+  filter(Sex == 'male')
+
+women_survived <- women %>% 
+  filter(Survived == 1) %>% 
+  filter(Sex == 'female')
+
+ms <- round(109/843*100, 4)
+ws <- round(233/466*100, 4)
+
+
+
  logistic_model <- glm(Survived ~ Sex + Pclass + Age + Embarked + Fare + SibSp + Parch, data = train)#, family = binomial)
 
 # employees ####
@@ -88,12 +101,12 @@ ui <- dashboardPage(
               fluidRow(column(width = 6, highchartOutput('class_man')),
                        column(width = 6, highchartOutput('age_man'))),
               fluidRow(column(width = 6, highchartOutput('cabin_man')),
-                       column(width = 6, highchartOutput('')))),
+                       column(width = 6, infoBox(icon = icon('user-check'), title = 'Percentage of Men who lived', width = 12 ,paste0(ms, '%'))))),
       tabItem(tabName = "womens",
               fluidRow(column(width = 6, highchartOutput('class_woman')),
                        column(width = 6, highchartOutput('age_woman'))),
               fluidRow(column(width = 6, highchartOutput('cabin_woman')),
-                       column(width = 6, highchartOutput('')))),
+                       column(width = 6, infoBox(icon = icon('user-check'), title = 'Percentage of Women who lived', width = 12 ,paste0(ws, '%'))))),
       tabItem(tabName = "probs",
               fluidRow(title = "Parker",
                        column(width = 4, box(title = "Parker", paste0(round(Parkers_prob*100, 2), '%'))),
