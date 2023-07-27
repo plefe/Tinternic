@@ -10,12 +10,13 @@ library(ISLR)
 train <- read.csv("train.csv")
 test <- read.csv("test.csv")
 
-full <- bind_rows(train, test)
+full <- bind_rows(train, test) %>% 
+  na.omit(Survived)
 
 men <- full[full$Sex == "male", ] %>% 
   mutate(Age = ifelse(Age <1, 0, Age))
 
-women <- full[full$Sex == "female", ]%>% 
+women <- full[full$Sex == "female", ] %>% 
   mutate(Age = ifelse(Age <1, 0, Age))
 # 
 # set.seed(69420)
@@ -31,7 +32,6 @@ women <- full[full$Sex == "female", ]%>%
 # 
 # male_prob <- predict(logistic_model, newdata = data.frame(Sex = "male"), type = "response")
 # 
-# specific_person <- data.frame(Sex = "male", Pclass = 3, Age = 30, Name = "Behr, Mr. Karl Howell")
 # 
 # 
 # employees ####
@@ -50,7 +50,7 @@ Parkers_Mom <- data.frame(PassengerId = 661, Sex = "female", Pclass = 1, Age = 5
 Ophelia_Banks <- data.frame(PassengerId = 660, Sex = "female", Pclass = 1, Age = 73, SibSp = 0,
                             Parch = 0, Fare = 42.07, Cabin = "A10", Embarked = "C")
 Rose_Bukater <- data.frame(PassengerId = 659, Sex = "female", Pclass = 1, Age = 31, SibSp = 0,
-                           Parch = 2, Fare = 98.9, Cabin = "A16", Embarked = "C")
+                           Parch = 2, Fare = 98.9, Cabin = "", Embarked = "C")
 Jack_Dawson <- data.frame(PassengerId = 658, Sex = "male", Pclass = 3, Age = 27, SibSp = 0,
                           Parch = 2, Fare = 0, Cabin = "E10", Embarked = "S")
 
@@ -103,8 +103,8 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Men Analysis", tabName = "mens", icon = icon("person")),
       menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress")),
-      menuItem("Did you Survive?", tabName = "probs", icon = icon("person-drowning")),
-      radioButtons("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])
+      radioButtons("Survived", "Survived:", choices = unique(full$Survived), selected = unique(full$Survived)[1])),
+      menuItem("Did you Survive?", tabName = "probs", icon = icon("person-drowning")
     )
   ),
   dashboardBody(
@@ -122,15 +122,15 @@ ui <- dashboardPage(
       tabItem(tabName = "probs",
               fluidRow(title = "Parker",
                        column(width = 4, box(title = "Parker", paste0(round(Parkers_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_survival_parker", "Parker's Chance of Survival")),
-                       column(width = 4, textOutput("result_text_parker"))),
+                       column(width = 4, actionButton("btn_parker", "Parker's Chance of Survival")),
+                       column(width = 4, textOutput("result_parker"))),
               fluidRow(column(width = 4, box(title = "Rylan's Mom", paste0(round(Rylans_mom_prob*100, 2), '%'))),
-                       column(width = 4, actionButton("btn_survival_Rylans_Mom", "Rylan's Mom's Chance of Survival")),
-                       column(width = 4, textOutput("result_text_Rylans_Mom"))),
-              fluidRow(column(width = 4, box(title = "Info Box 3", "This is the information for box 3.")),
-                       column(width = 4, actionButton("btn_survival_10", "10% Chance of Survival")),
-                       column(width = 4, textOutput("result_text_10")))))))
-        #      fluidRow(column(width = 12, textOutput("result_text")))))))
+                       column(width = 4, actionButton("btn_Rylans_Mom", "Rylan's Mom's Chance of Survival")),
+                       column(width = 4, textOutput("result_Rylans_Mom"))),
+              fluidRow(column(width = 4, box(title = "Jon", paste0(round(Jons_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Jon", "Jon's Chance of Survival")),
+                       column(width = 4, textOutput("result_Jon")))))))
+        #      fluidRow(column(width = 12, textOutput("result")))))))
 
 server <- function(input, output) {
   
@@ -223,57 +223,55 @@ server <- function(input, output) {
   })
   
   num_outcomes <- 1000
-  
-  # Generate random outcomes for each button's probability
   outcomes_parker <- generate_outcomes(prob_survival = 0.039, num_outcomes)
   outcomes_Rylans_Mom <- generate_outcomes(prob_survival = 0.6543, num_outcomes)
-  outcomes_10 <- generate_outcomes(prob_survival = 0.1, num_outcomes)
+  outcomes_Jon <- generate_outcomes(prob_survival = 0.335, num_outcomes)
   
-  # Reactive values to store the index of the last clicked button for each button
-  last_clicked_parker <- reactiveVal(NULL)
-  last_clicked_Rylans_Mom <- reactiveVal(NULL)
-  last_clicked_10 <- reactiveVal(NULL)
+
+  clicked_parker <- reactiveVal(NULL)
+  clicked_Rylans_Mom <- reactiveVal(NULL)
+  clicked_Jon <- reactiveVal(NULL)
   
-  observeEvent(input$btn_survival_parker, {
-    last_clicked_parker("btn_survival_parker")
+  observeEvent(input$btn_parker, {
+    clicked_parker("btn_parker")
   })
   
-  observeEvent(input$btn_survival_Rylans_Mom, {
-    last_clicked_Rylans_Mom("btn_survival_Rylans_Mom")
+  observeEvent(input$btn_Rylans_Mom, {
+    clicked_Rylans_Mom("btn_Rylans_Mom")
   })
   
-  observeEvent(input$btn_survival_10, {
-    last_clicked_10("btn_survival_10")
+  observeEvent(input$btn_Jon, {
+    clicked_Jon("btn_Jon")
   })
   
-  output$result_text_parker <- renderText({
-    req(last_clicked_parker())  # Make sure a button is clicked before displaying the result
+  output$result_parker <- renderText({
+    req(clicked_parker())
     outcome <- switch(
-      last_clicked_parker(),
-      "btn_survival_parker" = outcomes_parker[1]
+      clicked_parker(),
+      "btn_parker" = outcomes_parker[1]
     )
     outcomes_parker <<- outcomes_parker[-1]
     paste("Parker", outcome)
   })
   
-  output$result_text_Rylans_Mom <- renderText({
-    req(last_clicked_Rylans_Mom())  # Make sure a button is clicked before displaying the result
+  output$result_Rylans_Mom <- renderText({
+    req(clicked_Rylans_Mom())
     outcome <- switch(
-      last_clicked_Rylans_Mom(),
-      "btn_survival_Rylans_Mom" = outcomes_Rylans_Mom[1]
+      clicked_Rylans_Mom(),
+      "btn_Rylans_Mom" = outcomes_Rylans_Mom[1]
     )
     outcomes_Rylans_Mom <<- outcomes_Rylans_Mom[-1]
     paste("Rylan's Mom", outcome)
   })
   
-  output$result_text_10 <- renderText({
-    req(last_clicked_10())  # Make sure a button is clicked before displaying the result
+  output$result_Jon <- renderText({
+    req(clicked_Jon())
     outcome <- switch(
-      last_clicked_10(),
-      "btn_survival_10" = outcomes_10[1]
+      clicked_Jon(),
+      "btn_Jon" = outcomes_Jon[1]
     )
-    outcomes_10 <<- outcomes_10[-1]
-    paste("Randomly chosen outcome for 10% chance of survival:", outcome)
+    outcomes_Jon <<- outcomes_Jon[-1]
+    paste("Jon", outcome)
   })
   
   
