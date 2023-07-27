@@ -68,15 +68,13 @@ generate_outcomes <- function(prob_survival, num_outcomes) {
   return(outcomes)
 }
 
-# filterable <- reactive ({
-#   full %>% 
-#     filter(Survived == input$Survived)
-# }) 
-  
 
 ui <- dashboardPage(
   dashboardHeader(title = "Tinternic"),
-  dashboardSidebar(
+  dashboardSidebar(  h3('Page Select and Filters'),
+  'The creation of this dashboard serves as a tesimony of 
+   the skills I learned during my internship at Methodist. The data presented revolves around the Titanic and
+   its passengers.',
     sidebarMenu(
       menuItem("Men Analysis", tabName = "mens", icon = icon("person")),
       menuItem("Women Analysis", tabName = "womens", icon = icon("person-dress")),
