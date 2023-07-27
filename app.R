@@ -130,6 +130,15 @@ ui <- dashboardPage(
               fluidRow(column(width = 4, box(title = "Rylan", paste0(round(Rylans_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Rylan", "Rylan's Chance of Survival")),
                        column(width = 4, textOutput("result_Rylan"))),
+              fluidRow(column(width = 4, box(title = "Luke", paste0(round(Lukes_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Luke", "Luke's Chance of Survival")),
+                       column(width = 4, textOutput("result_Luke"))),
+              fluidRow(column(width = 4, box(title = "Parker's Mom", paste0(round(Parkers_mom_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Parkers_mom", "Luke's Chance of Survival")),
+                       column(width = 4, textOutput("result_Parkers_mom"))),
+              fluidRow(column(width = 4, box(title = "Ophelia", paste0(round(Ophelias_prob*100, 2), '%'))),
+                       column(width = 4, actionButton("btn_Ophelia", "Ophelia's Chance of Survival")),
+                       column(width = 4, textOutput("result_Ophelia"))),
               fluidRow(column(width = 4, box(title = "Jon", paste0(round(Jons_prob*100, 2), '%'))),
                        column(width = 4, actionButton("btn_Jon", "Jon's Chance of Survival")),
                        column(width = 4, textOutput("result_Jon")))))))
@@ -232,12 +241,18 @@ server <- function(input, output) {
   outcomes_Rylans_Mom <- generate_outcomes(prob_survival = 0.6543, num_outcomes)
   outcomes_Jon <- generate_outcomes(prob_survival = 0.335, num_outcomes)
   outcomes_Rylan <- generate_outcomes(prob_survival = 1, num_outcomes)
+  outcomes_Luke <- generate_outcomes(prob_survival = 0.561, num_outcomes)
+  outcomes_Parkers_mom <- generate_outcomes(prob_survival = 1, num_outcomes)
+  outcomes_Ophelia <- generate_outcomes(prob_survival = 0.226, num_outcomes)
   
 
   clicked_parker <- reactiveVal(NULL)
   clicked_Rylans_Mom <- reactiveVal(NULL)
   clicked_Jon <- reactiveVal(NULL)
   clicked_Rylan <- reactiveVal(NULL)
+  clicked_Luke <- reactiveVal(NULL)
+  clicked_Parkers_mom <- reactiveVal(NULL)
+  clicked_Ophelia <- reactiveVal(NULL)
   
   observeEvent(input$btn_parker, {
     clicked_parker("btn_parker")
@@ -253,6 +268,18 @@ server <- function(input, output) {
   
   observeEvent(input$btn_Rylan, {
     clicked_Rylan("btn_Rylan")
+  })
+  
+  observeEvent(input$btn_Luke, {
+    clicked_Luke("btn_Luke")
+  })
+  
+  observeEvent(input$btn_Parkers_mom, {
+    clicked_Parkers_mom("btn_Parkers_mom")
+  })
+  
+  observeEvent(input$btn_Ophelia, {
+    clicked_Ophelia("btn_Ophelia")
   })
   
   output$result_parker <- renderText({
@@ -293,6 +320,36 @@ server <- function(input, output) {
     )
     outcomes_Rylan <<- outcomes_Rylan[-1]
     paste("Rylan", outcome)
+  })
+  
+  output$result_Luke <- renderText({
+    req(clicked_Luke())
+    outcome <- switch(
+      clicked_Luke(),
+      "btn_Luke" = outcomes_Luke[1]
+    )
+    outcomes_Luke <<- outcomes_Luke[-1]
+    paste("Luke", outcome)
+  })
+  
+  output$result_Parkers_mom <- renderText({
+    req(clicked_Parkers_mom())
+    outcome <- switch(
+      clicked_Parkers_mom(),
+      "btn_Parkers_mom" = outcomes_Parkers_mom[1]
+    )
+    outcomes_Parkers_mom <<- outcomes_Parkers_mom[-1]
+    paste("Parker's Mom", outcome)
+  })
+  
+  output$result_Ophelia <- renderText({
+    req(clicked_Ophelia())
+    outcome <- switch(
+      clicked_Ophelia(),
+      "btn_Ophelia" = outcomes_Ophelia[1]
+    )
+    outcomes_Ophelia <<- outcomes_Ophelia[-1]
+    paste("Ophelia", outcome)
   })
   
   
